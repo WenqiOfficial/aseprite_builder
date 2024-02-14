@@ -146,7 +146,7 @@ jobs:
           tag_name: ${{ needs.check-version.outputs.latest_tag }}
           name: Aseprite ${{ needs.check-version.outputs.latest_tag }}
           body: |
-            ${{ steps.check-version.outputs.version_info }}
+            ${{ needs.check-version.outputs.version_info }}
           draft: false
           prerelease: false
 
