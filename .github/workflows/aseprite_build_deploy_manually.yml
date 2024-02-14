@@ -27,6 +27,7 @@ jobs:
         LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
+        ADDITIONAL_INFO=$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )
 
         echo "${LATEST_TAG}" > ${LATEST_TAG}.txt
         echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
@@ -35,7 +36,7 @@ jobs:
         echo "$VERSION_INFO" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
         echo "additional_info<<EOF" >> $GITHUB_OUTPUT
-        echo "$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )" >> $GITHUB_OUTPUT
+        echo "$ADDITIONAL_INFO" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
     - name: Load version from cache
       id: version_check
