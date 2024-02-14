@@ -71,11 +71,10 @@ jobs:
          os: [windows-latest, ubuntu-latest, macOS-latest]
        fail-fast: false
     steps:
-      - name: Dump version info (Only Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Dump version info
         run:  |
           echo "${{ needs.check-version.outputs.version_info }}"
-          echo "${{ needs.check-version.outputs.version_info }}"
+          echo "${{ needs.check-version.outputs.additional_info }}"
       - name: (Windows) Install dependencies
         if: matrix.os == 'windows-latest'
         uses: seanmiddleditch/gha-setup-ninja@v3
