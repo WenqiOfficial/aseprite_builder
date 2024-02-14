@@ -24,7 +24,7 @@ jobs:
       id: version_info
       run: |
         data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest )
-        additional_info=$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )
+        additional_info="$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md)"
         LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
@@ -35,7 +35,7 @@ jobs:
         echo "version_info<<EOF" >> $GITHUB_OUTPUT
         echo "$VERSION_INFO" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-        echo "$additional_info" >>$GITHUB_OUTPUT
+        echo "${additional_info}" >>$GITHUB_OUTPUT
     - name: Load version from cache
       id: version_check
       uses: actions/cache@v3
