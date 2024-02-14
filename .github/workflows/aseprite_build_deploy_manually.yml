@@ -30,6 +30,7 @@ jobs:
         echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
         echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
         echo "version_info<<EOF" >> $GITHUB_OUTPUT
+        echo "version_info2=${VERSION_INFO}" >> $GITHUB_OUTPUT
         echo "$VERSION_INFO" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
     - name: Load version from cache
@@ -146,7 +147,7 @@ jobs:
           tag_name: ${{ needs.check-version.outputs.latest_tag }}
           name: Aseprite ${{ needs.check-version.outputs.latest_tag }}
           body: |
-            ${{ needs.check-version.outputs.version_info }}
+            ${{ needs.check-version.outputs.version_info2 }}
           draft: false
           prerelease: false
 
