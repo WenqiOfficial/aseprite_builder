@@ -66,10 +66,10 @@ jobs:
          os: [windows-latest, ubuntu-latest, macOS-latest]
        fail-fast: false
     steps:
-      - name: Dump version info
-        run:  |
-          echo "${{ needs.check-version.outputs.version_info }}"
-          echo "$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )"
+      # - name: Dump version info
+      #   run:  |
+      #     echo "${{ needs.check-version.outputs.version_info }}"
+      #     echo "$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )"
       - name: (Windows) Install dependencies
         if: matrix.os == 'windows-latest'
         uses: seanmiddleditch/gha-setup-ninja@v3
