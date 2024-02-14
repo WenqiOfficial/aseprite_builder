@@ -45,7 +45,7 @@ jobs:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
-      if: steps.should_build.outputs.should_build
+      # if: steps.should_build.outputs.should_build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
