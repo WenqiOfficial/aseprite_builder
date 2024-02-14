@@ -18,11 +18,13 @@ jobs:
       should_build: ${{ steps.should_build.outputs.should_build }}
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version_info: ${{ steps.version_info.outputs.version_info }}
+      additional_info: ${{ steps.version_info.outputs.additional_info }}
     steps:
     - name: Get latest version info
       id: version_info
       run: |
         data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest )
+        additional_info=$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )
         LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
@@ -33,6 +35,7 @@ jobs:
         echo "version_info<<EOF" >> $GITHUB_OUTPUT
         echo "$VERSION_INFO" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
+        echo "$additional_info" >>$GITHUB_OUTPUT
     - name: Load version from cache
       id: version_check
       uses: actions/cache@v3
@@ -66,10 +69,10 @@ jobs:
          os: [windows-latest, ubuntu-latest, macOS-latest]
        fail-fast: false
     steps:
-      # - name: Dump version info
-      #   run:  |
-      #     echo "${{ needs.check-version.outputs.version_info }}"
-      #     echo "$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )"
+      - name: Dump version info
+        run:  |
+          echo "${{ needs.check-version.outputs.version_info }}"
+          echo "${{ needs.check-version.outputs.additional_info }}"
       - name: (Windows) Install dependencies
         if: matrix.os == 'windows-latest'
         uses: seanmiddleditch/gha-setup-ninja@v3
@@ -152,7 +155,7 @@ jobs:
           name: Aseprite ${{ needs.check-version.outputs.latest_tag }}
           body: |
             ${{ needs.check-version.outputs.version_info }}
-            $(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )
+            ${{ needs.check-version.outputs.additional_info }}
           draft: false
           prerelease: false
 
