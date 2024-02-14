@@ -5,7 +5,7 @@ To adhere to the EULA of Aseprite, this workflow does not upload the binary in a
 The release can be found within the releases as a draft (only visible for repo owner).
 
 # How to use
-1. Clone or fork this repo
+1. Clone or fork this repo.
 2. Edit /.github/workflows/aseprite_build_deploy.yml
 3. Find and edit the **os** line and remove the os you don't need.
 
@@ -13,7 +13,10 @@ The release can be found within the releases as a draft (only visible for repo o
             matrix:
                 os: [windows-latest, ubuntu-latest, macOS-latest]
 4. Save and commit.
-5. On every push to master and every day, the workflow will check for new Aseprite releases
+5. On every push to master and every day, the workflow will check for new Aseprite releases.
+6. **You can also start a build manually with /.actions/workflows/aseprite_build_deploy_manually.yml**
+7. Waiting for Action's building.
+8. Find final files in your Github Release !
         
 # Technical details
 This workflow follows the instructions as described at [Aseprite repo](https://github.com/aseprite/aseprite/blob/master/INSTALL.md)
