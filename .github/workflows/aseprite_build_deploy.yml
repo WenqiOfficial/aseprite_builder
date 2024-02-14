@@ -56,7 +56,7 @@ jobs:
         release_name: Aseprite ${{ steps.version_info.outputs.latest_tag }}
         body: |
           ${{ steps.version_info.outputs.version_info }}
-          $(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest )
+          $(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md )
         draft: false
         prerelease: false
 
