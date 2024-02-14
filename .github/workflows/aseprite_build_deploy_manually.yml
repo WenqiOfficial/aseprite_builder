@@ -24,7 +24,8 @@ jobs:
       id: version_info
       run: |
         data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest )
-        additional_info=$(echo "$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md)" )
+        curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md -o additional_info.txt
+        additional_info=`cat additional_info.txt`
         LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
