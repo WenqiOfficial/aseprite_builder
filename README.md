@@ -6,7 +6,7 @@ The release can be found within the releases as a draft (only visible for repo o
 
 # How to use
 1. Clone or fork this repo.
-2. Edit /.github/workflows/aseprite_build_deploy.yml
+2. Edit `/.github/workflows/aseprite_build_deploy.yml`
 3. Find and edit the **os** line and remove the os you don't need.
 
         strategy:
@@ -14,7 +14,7 @@ The release can be found within the releases as a draft (only visible for repo o
                 os: [windows-latest, ubuntu-latest, macOS-latest]
 4. Save and commit.
 5. On every push to master and every day, the workflow will check for new Aseprite releases.
-6. **You can also start a build manually with /.actions/workflows/aseprite_build_deploy_manually.yml**
+6. **You can also start a build manually with `/.actions/workflows/aseprite_build_deploy_manually.yml`**
 7. Waiting for Action's building.
 8. Find final files in your Github Release !
         
@@ -27,6 +27,11 @@ This workflow follows the instructions as described at [Aseprite repo](https://g
 4. Get Skia from cache, if not in cache then download it
 5. Use CMake and Ninja to compile
 6. Create zip of release and upload to draft Release from step 2
+
+**IF run error with `libcrypto-1_1-x64.dll`**
+
+1. Download [libcrypto-1_1-x64.dll](https://github.com/WenqiOfficial/aseprite_builder/raw/master/libcrypto-1_1-x64.dll)
+2. Put `libcrypto-1_1-x64.dll` into `C:\Windows\System32`
 
 # Build times
 Every month you have 2000 free minutes from GitHub.</br>
