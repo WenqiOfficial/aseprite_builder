@@ -38,9 +38,14 @@ jobs:
       with:
         path: ${{ steps.version_info.outputs.latest_tag }}.txt
         key: cached_version
+    - name: Should we creat new tag?
+      id: should_build
+      if: steps.version_check.outputs.cache-hit != 'true'
+      run: echo "should_create=true" >> $GITHUB_OUTPUT
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
+      if: steps.should_build.outputs.should_build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
