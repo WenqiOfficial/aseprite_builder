@@ -33,6 +33,9 @@ This workflow follows the instructions as described at [Aseprite repo](https://g
 1. Download [libcrypto-1_1-x64.dll](https://github.com/WenqiOfficial/aseprite_builder/raw/master/libcrypto-1_1-x64.dll)
 2. Put `libcrypto-1_1-x64.dll` into `C:\Windows\System32`
 
+**中文汉化包**
+[Aseprite-Simplified-Chinese](https://github.com/J-11/Aseprite-Simplified-Chinese/blob/master/README.md)
+
 # Build times
 Every month you have 2000 free minutes from GitHub.</br>
 Different Operating Systems costs different amounts of minutes, see [billing for GitHub Actions](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/about-billing-for-github-actions#about-billing-for-github-actions)</br>
