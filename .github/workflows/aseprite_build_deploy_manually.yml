@@ -65,6 +65,17 @@ jobs:
          os: [windows-latest, ubuntu-latest, macOS-latest]
        fail-fast: false
     steps:
+      - name: Get latest version info
+        id: version_info_release
+        run: |
+          data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest )
+          VERSION_INFO=$(echo "${data}" | jq -r '.body')
+
+          echo "version_info<<EOF" >> $GITHUB_OUTPUT
+          echo "$VERSION_INFO" >> $GITHUB_OUTPUT
+      - name: Dump version info
+        run:  |
+          echo ${{ steps.version_info_release.outputs.version_info }}
       - name: (Windows) Install dependencies
         if: matrix.os == 'windows-latest'
         uses: seanmiddleditch/gha-setup-ninja@v3
@@ -137,14 +148,6 @@ jobs:
       #     asset_path: aseprite/build/bin/Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
       #     asset_name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
       #     asset_content_type: application/zip
-      - name: Get latest version info
-        id: version_info_release
-        run: |
-          data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest )
-          VERSION_INFO=$(echo "${data}" | jq -r '.body')
-
-          echo "version_info<<EOF" >> $GITHUB_OUTPUT
-          echo "${VERSION_INFO}" >> $GITHUB_OUTPUT
       - name: GitHub Release
         uses: softprops/action-gh-release@v1
         # if: startsWith(github.ref, 'refs/tags/')
@@ -154,7 +157,7 @@ jobs:
           tag_name: ${{ needs.check-version.outputs.latest_tag }}
           name: Aseprite ${{ needs.check-version.outputs.latest_tag }}
           body: |
-            ${{ steps.version_info.outputs.version_info }}
+            ${{ steps.version_info_release.outputs.version_info }}
           draft: false
           prerelease: false
 
