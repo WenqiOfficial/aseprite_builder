@@ -11,6 +11,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  VersionTag: tags/v1.3.10 # latest / tags/tag_name
 
 jobs:
   check-version:
@@ -25,7 +26,7 @@ jobs:
     - name: Get latest version info
       id: version_info
       run: |
-        data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest )
+        data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/${{ env.VersionTag }} )
         LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
         DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
