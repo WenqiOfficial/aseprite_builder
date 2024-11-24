@@ -11,7 +11,7 @@ on:
 
 env:
   BUILD_TYPE: Release
-  VersionTag: tags/v1.3.10 # latest / tags/tag_name
+  VersionTag: tags/v1.3.10.1 # latest / tags/tag_name
 
 jobs:
   check-version:
