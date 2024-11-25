@@ -51,10 +51,10 @@ jobs:
       id: should_build
       env: 
         NEW_BUILD: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/fix' || steps.version_check.outputs.cache-hit != 'true' }}
-      if: ${{ ! contains(steps.version_info.outputs.latest_tag,'beta') }} && ${{ NEW_BUILD }}
+      if: ${{ ! contains(steps.version_info.outputs.latest_tag,'beta') }} && ${{ env.NEW_BUILD }}
       run: |
         echo "should_build=true" >> $GITHUB_OUTPUT
-        echo New Build: ${{ NEW_BUILD }}
+        echo New Build: ${{ env.NEW_BUILD }}
         echo No beta: ${{ ! contains(steps.version_info.outputs.latest_tag,'beta') }}
     - name: Create Release
       id: create_release
