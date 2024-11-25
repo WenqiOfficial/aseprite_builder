@@ -49,10 +49,12 @@ jobs:
         key: cached_version
     - name: Should we start new build?
       id: should_build
-      if: ${{ ! contains(steps.version_info.outputs.latest_tag,'beta') }} && ( github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/fix' || steps.version_check.outputs.cache-hit != 'true')
+      env: 
+        NEW_BUILD: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/fix' || steps.version_check.outputs.cache-hit != 'true' }}
+      if: ${{ ! contains(steps.version_info.outputs.latest_tag,'beta') }} && ${{ NEW_BUILD }}
       run: |
         echo "should_build=true" >> $GITHUB_OUTPUT
-        echo ${{steps.version_info.outputs.latest_tag}}
+        echo New Build: ${{ NEW_BUILD }}
         echo No beta: ${{ ! contains(steps.version_info.outputs.latest_tag,'beta') }}
     - name: Create Release
       id: create_release
