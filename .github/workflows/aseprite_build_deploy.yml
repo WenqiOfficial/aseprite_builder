@@ -52,11 +52,11 @@ jobs:
       env: 
         NEW_BUILD: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/fix' || steps.version_check.outputs.cache-hit != 'true' }}
         NOT_BETA: ${{ !contains(steps.version_info.outputs.latest_tag,'beta') }}
-      if: ${{ env.NEW_BUILD && env.NOT_BETA }}
-      run: echo "should_build=true" >> $GITHUB_OUTPUT
+      # if: ${{ env.NEW_BUILD && env.NOT_BETA }}
+      run: echo "should_build=${{ env.NEW_BUILD && env.NOT_BETA }}" >> $GITHUB_OUTPUT
     - name: Create Release
       id: create_release
-      if: steps.should_build.outputs.should_build
+      if: steps.should_build.outputs.should_build == 'true'
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
