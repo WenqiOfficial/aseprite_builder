@@ -2,58 +2,61 @@
 
 [English](https://github.com/WenqiOfficial/aseprite_builder/blob/main/README.md) | [简体中文](https://github.com/WenqiOfficial/aseprite_builder/blob/main/README-chs.md)
 
-# What is it
-Automated workflow for GitHub Actions which builds Aseprite for Windows, Linux, macOS.</br>
-By using GitHub actions there is no need for manual compilation and it does not contain malware.</br>
-To adhere to the EULA of Aseprite, this workflow does not upload the binary in a public accessible space like artifacts.</br>
-The release can be found within the releases as a draft (only visible for repo owner).
+# 实现功能
+通过Github Actions自动构建macOS、Ubuntu、Windows的Aseprite</br>
+不包含任何恶意代码</br>
+可选构建后的程序文件不会公开发布.</br>
+可选仅在Actions draft可见(仅库所有者可见).
 
-# How to use
-1. Clone or fork this repo.
-2. Edit `/.github/workflows/aseprite_build_deploy.yml`
-3. Find and edit the **os** line and remove the os you don't need.
+# 使用方法
+1. Clone 或者 Fork 本仓库.
+2. 按照你的需求编辑Actions配置文件 `/.github/workflows/aseprite_build_deploy.yml`
+3. 编辑 **os** 行，选择你需要构建的平台.(可选)
 
         strategy:
             matrix:
                 os: [windows-latest, ubuntu-latest, macOS-latest]
-4. Save and commit.
-5. On every push to master and every day, the workflow will check for new Aseprite releases.
-6. **You can also start a build manually with `/.actions/workflows/aseprite_build_deploy_manually.yml`**
-7. Waiting for Action's building.
-8. Find final files in your Github Release !
+4. 保存并提交.
+5. 前往 Actions 并启用.
+8. 等待自动构建或是手动开始构建.
+9. 从 Github Release 找到构建完成的文件.
         
-# Technical details
-This workflow follows the instructions as described at [Aseprite repo](https://github.com/aseprite/aseprite/blob/master/INSTALL.md)
+# 代码实现
+Actions 代码参照 [Aseprite repo](https://github.com/aseprite/aseprite/blob/master/INSTALL.md)
 
-1. Every day check if there is a new Aseprite release on GitHub (by comparing against cached version)
-2. If newer version then create a draft Release where the build job can put the binaries.
-3. Start building
-4. Get Skia from cache, if not in cache then download it
-5. Use CMake and Ninja to compile
-6. Create zip of release and upload to draft Release from step 2
+1. 每日定时检查、当本仓库有新提交、手动执行时便会与上游仓库Release对比.
+2. 当上游仓库存在新的Release时将会启动执行系统版本的构建任务.
 
-**IF run error with `libcrypto-1_1-x64.dll`**
+构建过程：
+1. 从缓存获取 Skia.
+2. 使用 CMake & Ninja 构建.
+3. 将构建好的文件打包并上传至仓库Release中.
 
-1. Download [libcrypto-1_1-x64.dll](https://github.com/WenqiOfficial/aseprite_builder/raw/master/libcrypto-1_1-x64.dll)
-2. Put `libcrypto-1_1-x64.dll` into `C:\Windows\System32`
+# 附加说明
+
+**如果运行构建好的文件出现 `libcrypto-1_1-x64.dll` 文件报错**
+
+1. 下载 [libcrypto-1_1-x64.dll](https://github.com/WenqiOfficial/aseprite_builder/raw/master/libcrypto-1_1-x64.dll).
+2. 将 `libcrypto-1_1-x64.dll` 放至 `C:\Windows\System32` 中.
 
 **中文汉化包**
-[Aseprite-Simplified-Chinese](https://github.com/J-11/Aseprite-Simplified-Chinese/blob/master/README.md)
+[Aseprite-Simplified-Chinese](https://github.com/J-11/Aseprite-Simplified-Chinese/blob/master/README.md).
 
-# Build times
-Every month you have 2000 free minutes from GitHub.</br>
-Different Operating Systems costs different amounts of minutes, see [billing for GitHub Actions](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/about-billing-for-github-actions#about-billing-for-github-actions)</br>
-So building for all three Operating Systems will cost 130 minutes (20 * 2+10 * 1+8 * 10)</br>
-That is why we recommend you to modify the **os** line to only build for the OS that you need.
-|Operating System|Minutes|Minute multiplier
+# 构建用时
+Github每月会提供2000分钟的Actions余额(应该够用了...吧).</br>
+不同系统的构建任务同样会消耗不同的Actions余额 [billing for GitHub Actions](https://help.github.com/en/github/setting-up-and-managing-billing-and-payments-on-github/about-billing-for-github-actions#about-billing-for-github-actions)</br>
+构建所有系统大约会消耗 114 分钟余额 (12 * 2 + 10 * 1 + 8 * 10)</br>
+总之还是推荐用到什么系统就构建对应系统.
+
+|系统|用时(分钟)|倍率
 |---|---|---|
-|Windows|20|2|
+|Windows|12|2|
 |Ubuntu|10|1|
 |macOS|8|10|
 
-# References to other Aseprite builders
-- https://github.com/haxpor/aseprite-macos-buildsh => Script which lets you build automatically on macOS
-- https://github.com/Insouciant21/action_aseprite => Uses GitHub Actions, but currently has unoptimized binaries and these are publicly available which goes against Aseprite EULA
+# 参考的其他库
+- [aseprite-macos-buildsh](https://github.com/haxpor/aseprite-macos-buildsh)
+- [action_aseprite](https://github.com/Insouciant21/action_aseprite)
 
-# Support Aseprite
-Keep supporting Aseprite at https://aseprite.org/#buy
+# 支持 Aseprite 开发！
+[Buy Aseprite](https://aseprite.org/#buy)
