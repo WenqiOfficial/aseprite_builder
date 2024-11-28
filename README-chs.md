@@ -1,6 +1,6 @@
 # Aseprite Github Actions Builder
 
-[English](https://github.com/WenqiOfficial/aseprite_builder/blob/main/README.md) | [简体中文](https://github.com/WenqiOfficial/aseprite_builder/blob/main/README-chs.md)
+[English](https://github.com/WenqiOfficial/aseprite_builder/blob/master/README.md) | [简体中文](https://github.com/WenqiOfficial/aseprite_builder/blob/master/README-chs.md)
 
 # 实现功能
 通过Github Actions自动构建macOS、Ubuntu、Windows的Aseprite</br>
