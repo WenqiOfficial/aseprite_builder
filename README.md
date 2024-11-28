@@ -1,3 +1,7 @@
+# Aseprite Github Actions Builder
+
+[English](https://github.com/WenqiOfficial/aseprite_builder/blob/main/README.md) | [简体中文](https://github.com/WenqiOfficial/aseprite_builder/blob/main/README-chs.md)
+
 # What is it
 Automated workflow for GitHub Actions which builds Aseprite for Windows, Linux, macOS.</br>
 By using GitHub actions there is no need for manual compilation and it does not contain malware.</br>
