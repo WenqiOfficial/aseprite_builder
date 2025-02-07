@@ -1,0 +1,193 @@
+name: Build and deploy Aseprite Pro
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - fix
+
+env:
+  BUILD_TYPE: Release
+  VersionTag: latest # latest / tags/tag_name
+
+jobs:
+  check-version:
+    name: Check latest Aseprite release
+    runs-on: ubuntu-latest
+    outputs:
+      download_url: ${{ steps.version_info.outputs.download_url }}
+      latest_tag: ${{ steps.version_info.outputs.latest_tag }}
+      should_build: ${{ steps.should_build.outputs.should_build }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+    - name: Get latest version info
+      id: version_info
+      run: |
+        data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/${{ env.VersionTag }} )
+        LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
+        DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
+        VERSION_INFO=$(echo "${data}" | jq -r '.body')
+        ADDITIONAL_INFO=$(curl -sL https://raw.githubusercontent.com/WenqiOfficial/aseprite_builder/master/release.md)
+
+        echo "${LATEST_TAG}" > ${LATEST_TAG}.txt
+        echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
+        echo "download_url=${DOWNLOAD_URL}" >> $GITHUB_OUTPUT
+        echo "version_info<<EOF" >> $GITHUB_OUTPUT
+        echo "$VERSION_INFO" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        echo "additional_info<<EOF" >> $GITHUB_OUTPUT
+        echo "$ADDITIONAL_INFO" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    - name: Load version from cache
+      id: version_check
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.version_info.outputs.latest_tag }}.txt
+        key: cached_version
+    - name: Should we start new build?
+      id: should_build
+      env: 
+        NEW_BUILD: ${{ github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/fix' || steps.version_check.outputs.cache-hit != 'true' }}
+        # NOT_BETA: ${{ !contains(steps.version_info.outputs.latest_tag,'beta') }}
+        NOT_BETA: true
+      run: echo "should_build=${{ env.NEW_BUILD && env.NOT_BETA }}" >> $GITHUB_OUTPUT
+    - name: Create Release
+      id: create_release
+      if: steps.should_build.outputs.should_build == 'true'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version_info.outputs.latest_tag }}
+        release_name: Aseprite ${{ steps.version_info.outputs.latest_tag }}
+        body: |
+          ${{ steps.version_info.outputs.version_info }}
+          ${{ steps.version_info.outputs.additional_info }}
+        draft: false
+        prerelease: false
+        
+  build-aseprite:
+    name: Build Aseprite
+    needs: check-version
+    if: ${{ needs.check-version.outputs.should_build == 'true' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macOS-latest]
+      fail-fast: false
+    steps:
+      # 安装基础工具（所有平台）
+      - name: Install common tools
+        run: |
+          # Ubuntu
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            sudo apt update && sudo apt install -y python3 git curl unzip
+          # macOS
+          elif [ "${{ matrix.os }}" = "macOS-latest" ]; then
+            brew install python@3.11 git curl unzip
+          # Windows
+          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+            choco install python git curl unzip -y
+          fi
+
+      # 克隆 Skia 源码
+      - name: Clone Skia
+        run: |
+          git clone https://github.com/aseprite/skia.git --depth=1 --branch=m102-861e4743af
+          cd skia
+          python3 tools/git-sync-deps  # 同步依赖项
+
+      # 安装平台特定依赖
+      - name: Install platform dependencies
+        run: |
+          # Ubuntu
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            sudo apt install -y \
+              build-essential ninja-build \
+              libgl1-mesa-dev libglu1-mesa-dev \
+              libicu-dev libjpeg-turbo8-dev libwebp-dev
+
+          # macOS
+          elif [ "${{ matrix.os }}" = "macOS-latest" ]; then
+            brew install ninja pkg-config icu4c libjpeg-turbo webp
+
+          # Windows
+          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+            # 需要提前安装 VS 2022 的 C++ 工具链（通过后续步骤）
+            echo "Dependencies handled by Visual Studio"
+          fi
+
+      # 配置 Skia 构建参数
+      - name: Configure Skia build
+        run: |
+          cd skia
+          # 生成构建文件（使用 gn 和 ninja）
+          bin/gn gen out/Release-x64 --args='
+            is_official_build=true
+            is_debug=false
+            target_os="${{ matrix.skia_target_os }}"
+            target_cpu="x64"
+            skia_use_system_icu=true
+            skia_use_system_libjpeg_turbo=true
+            skia_use_system_libwebp=true
+            skia_use_system_zlib=true
+            skia_enable_tools=false
+          '
+
+      # 编译 Skia
+      - name: Build Skia
+        run: |
+          cd skia
+          ninja -C out/Release-x64 skia
+
+      # 下载 Aseprite 源码
+      - name: Download Aseprite release
+        run: |
+          curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
+          unzip Aseprite-source.zip -d aseprite
+          cd aseprite
+          git submodule update --init --recursive
+          mkdir -p build
+
+      # 配置 Aseprite 的 CMake（使用源码构建的 Skia）
+      - name: Run CMake for Aseprite
+        working-directory: aseprite/build
+        run: |
+          # 动态生成 Skia 路径
+          SKIA_DIR="${{ github.workspace }}/skia"
+          SKIA_LIBRARY_DIR="${{ github.workspace }}/skia/out/Release-x64"
+
+          # Windows 使用反斜杠
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            SKIA_DIR=$(echo "$SKIA_DIR" | sed 's/\//\\/g')
+            SKIA_LIBRARY_DIR=$(echo "$SKIA_LIBRARY_DIR" | sed 's/\//\\/g')
+          fi
+
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DLAF_BACKEND=skia \
+            -DSKIA_DIR="$SKIA_DIR" \
+            -DSKIA_LIBRARY_DIR="$SKIA_LIBRARY_DIR" \
+            -G Ninja
+
+      # 编译 Aseprite
+      - name: Run Ninja
+        working-directory: aseprite/build
+        run: ninja aseprite
+
+      # 后续打包和上传步骤（保持不变）
+      - name: Create release
+        working-directory: aseprite/build/bin
+        run: 7z -tzip a Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip *
+
+      - name: Upload release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.check-version.outputs.upload_url }}
+          asset_path: aseprite/build/bin/Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
+          asset_name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
