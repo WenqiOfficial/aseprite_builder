@@ -58,6 +58,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        allowUpdates: true
+        removeArtifacts: true
         tag_name: ${{ steps.version_info.outputs.latest_tag }}
         release_name: Aseprite ${{ steps.version_info.outputs.latest_tag }}
         body: |
