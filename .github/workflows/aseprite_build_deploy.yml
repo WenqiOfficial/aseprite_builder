@@ -139,7 +139,7 @@ jobs:
         run: cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -DLAF_BACKEND=skia -DSKIA_DIR=$(realpath ../../skia) -DSKIA_LIBRARY_DIR=$(realpath ../../skia/out/Release-x64) -G Ninja ..
       - name: Run Ninja
         working-directory: aseprite/build
-        run: ninja aseprite
+        run: ninja aseprite -j$(nproc)
       - name: Clean up build
         working-directory: aseprite/build/bin
         shell: bash
